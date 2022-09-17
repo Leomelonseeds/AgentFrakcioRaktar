@@ -1,0 +1,8 @@
+name: AgentFrakcioRaktar
+version: 1.0.0
+main: com.leomelonseeds.afr.AgentFrakcioRaktar
+api-version: 1.19
+author: M310N
+description: A factions storage plugin
+depend:
+  - Vault
