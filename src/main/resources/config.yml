@@ -1,0 +1,87 @@
+# List the coordinates of the chest locations here
+# Format: [world],[x],[y],[z]
+locations:
+  - "world,0,100,0"
+  - "world,3,100,0"
+  - "world,5,100,0"
+    
+# Enter gruops and their associated permissions here
+# List in order of priority: The group of the player
+# is the first one that they have permission for.
+groups:
+  pd: "ac.pd"
+  ambulance: "ac.omsz"
+  mechanic: "ac.mechanic"
+  agency: "ac.ea"
+
+# Each item has a slot, item, name, and lore.
+# The slot and item options are mandatory. 
+# Slot is 0 indexed, meaning the first slot in the inventory is 0
+# the lore option must be a list of text
+main-menu:
+  deposit:
+    slot:
+    item: PAPER
+    name: "&cDeposit"
+    lore:
+    - ""
+    - ""
+  withdraw:
+    slot:
+    item: SUNFLOWER
+    name: "&eWithdraw"
+    lore:
+    - ""
+    - ""
+  shop:
+    slot:
+    item: EMERALD
+    name: "&aShop"
+    lore:
+    - ""
+    - ""
+    
+# This item will fill the main menu, and also the bottom of each GUI
+fill-item:
+  item: BLACK_STAINED_GLASS_PANE
+  name: ""
+    
+deposit-menu:
+  title: "&cDeposit"
+  confirm: 
+    name: "&aConfirm"
+    item: "GREEN_STAINED_GLASS_PANE"   
+  back-item:  
+    name: "&cBack"
+    item: "BARRIER"
+    slot: 53
+    
+withdraw-menu:
+  title: "&eWithdraw"
+  back-item:
+    name: "&cBack"
+    item: "BARRIER"
+    # The slot must not be 45 or 53
+    slot: 49
+  
+shop-menu:
+  title: "&aShop"
+  # These lines will be added to the end of each shop item
+  cost-format:
+    - "&7Cost: &b$%cost%"
+    - "&cLeft-click &7to buy &6%left-click-amount%"
+    - "&cRight-click &7to buy &6%right-click-amount%"
+    - "&cMiddle-click &7to buy &6%middle-click-amount%"
+  left-click-amount: 1
+  right-click-amount: 8
+  middle-click-amount: 64
+  shops:
+    # each section should have same name as one of the groups defined above
+    pd:
+      1: 
+        item: COOKED_BEEF
+        cost: 64
+      2:
+        item: IRON_SWORD
+        cost: 143
+    
