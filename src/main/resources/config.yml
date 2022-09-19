@@ -55,7 +55,7 @@ previous-page:
 # To next page
 next-page:
   item: ARROW
-  name: "&Next Page"
+  name: "&fNext Page"
   slot: 53
     
 deposit-menu:
@@ -76,6 +76,7 @@ withdraw-menu:
   name-format: "%name% &ax%amount%"
   # These lines will be added to the end of each shop item
   withdraw-format:
+    - ""
     - "&cLeft-click &7to withdraw &6%left-click-amount%"
     - "&cRight-click &7to withdraw &6%right-click-amount%"
     - "&cShift + Left-click &7to withdraw &61 stack"
@@ -91,6 +92,7 @@ shop-menu:
   title: "&aShop"
   # These lines will be added to the end of each shop item
   cost-format:
+    - ""
     - "&7Cost: &b$%cost%"
     - "&cLeft-click &7to buy &6%left-click-amount%"
     - "&cRight-click &7to buy &6%right-click-amount%"
@@ -117,4 +119,7 @@ shop-menu:
 messages:
   no-group: "&cYou are not in a faction!"
   items-deposited: "&7You deposited &a%amount% &7items."
+  not-enough-money: "&cYou do not have enough money (%cost%) for this transaction."
+  purchase-successful: "&aYou bought %amount%x %name% for %cost%."
+  inventory-full: "&cYour inventory is full!"
     

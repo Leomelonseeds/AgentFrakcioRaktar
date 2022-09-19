@@ -37,10 +37,6 @@ public class AFRMenu implements AFRInventory {
 
     @Override
     public void registerClick(int slot, ClickType type) {
-        if (type != ClickType.LEFT) {
-            return;
-        }
-        
         if (group == null) {
             ConfigUtils.sendMessage(player, "no-group");
             return;
@@ -52,12 +48,12 @@ public class AFRMenu implements AFRInventory {
         }
         
         if (slot == config.getInt("main-menu.withdraw.slot")) {
-            new WithdrawMenu();
+            new WithdrawMenu(player, group, location);
             return;
         }
         
         if (slot == config.getInt("main-menu.shop.slot")) {
-            new ShopMenu(player, group);
+            new ShopMenu(player, group, location);
         }
     }
 

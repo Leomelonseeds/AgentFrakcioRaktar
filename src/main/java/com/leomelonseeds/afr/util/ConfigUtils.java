@@ -4,7 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +31,7 @@ import com.leomelonseeds.afr.AgentFrakcioRaktar;
 import com.leomelonseeds.afr.inv.StoredItem;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 
 public class ConfigUtils {
     
@@ -47,11 +49,19 @@ public class ConfigUtils {
             
             output = Base64.getEncoder().encodeToString(str.toByteArray());
         } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.WARNING, "Failed to save a StoredItem string to the config");
+            Bukkit.getLogger().log(Level.WARNING, "Failed to create a StoredItem string! Aborting...");
+            e.printStackTrace();
+            return;
         }
         
         FileConfiguration storage = getData(locationToString(location));
         storage.set(group, output);
+        try {
+            storage.save(new File(AgentFrakcioRaktar.getPlugin().getDataFolder().toString() + "/data", locationToString(location)));
+        } catch (IOException e) {
+            Bukkit.getLogger().log(Level.WARNING, "Failed to save a StoredItem string to data!");
+            e.printStackTrace();
+        }
     }
     
     // Fetch string from input and turn it into list of StoredItem
@@ -103,6 +113,7 @@ public class ConfigUtils {
                 if (added.contains(item)) {
                     continue;
                 }
+                added.add(item);
                 StoredItem si = new StoredItem(item, 0);
                 for (ItemStack jtem : input) {
                     if (jtem.isSimilar(item)) {
@@ -183,13 +194,15 @@ public class ConfigUtils {
         
         // Add cost formats if cost exists
         if (config.contains(path + ".cost")) {
-            List<String> format = config.getStringList("shop-menu.cost-format");
-            int cost = config.getInt(path + ".cost");
-            for (String s : format) {
+            List<String> format = new ArrayList<>(config.getStringList("shop-menu.cost-format"));
+            double cost = config.getDouble(path + ".cost");
+            for (int i = 0; i < format.size(); i++) {
+                String s = format.get(i);
                 s = s.replaceAll("%cost%", cost + "");
                 for (String a : new String[] {"left-click-amount", "right-click-amount"}) {
                     s = s.replaceAll("%" + a + "%", config.getInt("shop-menu." + a) + "");
                 }
+                format.set(i, s);
             }
             lore.addAll(format);
         }
@@ -223,7 +236,20 @@ public class ConfigUtils {
     }
 
     public static String toPlain(Component component) {
-        return PlainTextComponentSerializer.plainText().serialize(component);
+        return PlainComponentSerializer.plain().serialize(component);
     }
+    
+    public static String formatNumber(double i) {
+        List<String> suffixes = Arrays.asList("", "K", "M", "B", "T", "Q", "L");
+        
+        int index = 0;
+        double temp;
+        while ((temp = i / 1000) >= 1) {
+            i = temp;
+            index++;
+        }
 
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        return decimalFormat.format(i) + suffixes.get(index);
+    }
 }
