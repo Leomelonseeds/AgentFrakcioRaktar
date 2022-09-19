@@ -16,10 +16,10 @@ public class AFRMenu implements AFRInventory {
     private String group;
     private Location location;
     
-    public AFRMenu(Player player, Location location) {
+    public AFRMenu(Player player, Location location, String group) {
         this.player = player;
         this.location = location;
-        this.group = ConfigUtils.getGroup(player);
+        this.group = group;
         
         String title = config.getString("main-menu.title");
         inv = Bukkit.createInventory(null, 27, ConfigUtils.toComponent(title));

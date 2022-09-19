@@ -38,20 +38,22 @@ public class ConfigUtils {
     // Turn a list of StoredItem into a string, and store it in the file
     public static void itemsToString(List<StoredItem> list, Location location, String group) {
         String output = "";
-        try {
-            ByteArrayOutputStream str = new ByteArrayOutputStream();
-            BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
-            
-            data.writeInt(list.size());
-            for (StoredItem i : list) {
-                data.writeObject(i);
+        if (!list.isEmpty()) {
+            try {
+                ByteArrayOutputStream str = new ByteArrayOutputStream();
+                BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
+                
+                data.writeInt(list.size());
+                for (StoredItem i : list) {
+                    data.writeObject(i);
+                }
+                
+                output = Base64.getEncoder().encodeToString(str.toByteArray());
+            } catch (final IOException e) {
+                Bukkit.getLogger().log(Level.WARNING, "Failed to create a StoredItem string! Aborting...");
+                e.printStackTrace();
+                return;
             }
-            
-            output = Base64.getEncoder().encodeToString(str.toByteArray());
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.WARNING, "Failed to create a StoredItem string! Aborting...");
-            e.printStackTrace();
-            return;
         }
         
         FileConfiguration storage = getData(locationToString(location));
@@ -62,6 +64,8 @@ public class ConfigUtils {
             Bukkit.getLogger().log(Level.WARNING, "Failed to save a StoredItem string to data!");
             e.printStackTrace();
         }
+        
+        AgentFrakcioRaktar.getPlugin().getInvs().updateWithdrawals(group);
     }
     
     // Fetch string from input and turn it into list of StoredItem
@@ -110,11 +114,17 @@ public class ConfigUtils {
             // To avoid CME, make set of items that have already been added
             Set<ItemStack> added = new HashSet<>();
             for (ItemStack item : input) {
-                if (added.contains(item)) {
+                boolean skip = false;
+                for (ItemStack i : added) {
+                    if (i.isSimilar(item)) {
+                        skip = true;
+                    }
+                }
+                if (skip) {
                     continue;
                 }
                 added.add(item);
-                StoredItem si = new StoredItem(item, 0);
+                StoredItem si = new StoredItem(new ItemStack(item), 0);
                 for (ItemStack jtem : input) {
                     if (jtem.isSimilar(item)) {
                         si.addAmount(jtem.getAmount());

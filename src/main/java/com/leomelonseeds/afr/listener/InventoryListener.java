@@ -97,13 +97,14 @@ public class InventoryListener implements Listener {
             if (check.equals(left) || check.equals(right)) {
                 event.setCancelled(true);
                 Player player = event.getPlayer();
+                String group = ConfigUtils.getGroup(player);
 
-                if (ConfigUtils.getGroup(player) == null) {
+                if (group == null) {
                     ConfigUtils.sendMessage(player, "no-group");
                     return;
                 }
                 
-                new AFRMenu(player, check);
+                new AFRMenu(player, check, group);
                 return;
             }
         }
