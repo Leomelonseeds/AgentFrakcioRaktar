@@ -1,4 +1,5 @@
 # List the coordinates of the chest locations here
+# Only 1 block of the double chest needs to be put here
 # Format: [world],[x],[y],[z]
 locations:
   - "world,0,100,0"
@@ -19,22 +20,23 @@ groups:
 # Slot is 0 indexed, meaning the first slot in the inventory is 0
 # the lore option must be a list of text
 main-menu:
+  title: "AFR Menu"
   deposit:
-    slot:
+    slot: 11
     item: PAPER
     name: "&cDeposit"
     lore:
     - ""
     - ""
   withdraw:
-    slot:
+    slot: 13
     item: SUNFLOWER
     name: "&eWithdraw"
     lore:
     - ""
     - ""
   shop:
-    slot:
+    slot: 15
     item: EMERALD
     name: "&aShop"
     lore:
@@ -43,21 +45,42 @@ main-menu:
     
 # This item will fill the main menu, and also the bottom of each GUI
 fill-item:
-  item: BLACK_STAINED_GLASS_PANE
+  item: LIGHT_BLUE_STAINED_GLASS_PANE
   name: ""
+# To previous page
+previous-page:
+  item: ARROW
+  name: "&fLast Page"
+  slot: 45
+# To next page
+next-page:
+  item: ARROW
+  name: "&Next Page"
+  slot: 53
     
 deposit-menu:
   title: "&cDeposit"
   confirm: 
     name: "&aConfirm"
-    item: "GREEN_STAINED_GLASS_PANE"   
-  back-item:  
+    item: "GREEN_STAINED_GLASS_PANE"
+    slot: 49
+  back-item:
     name: "&cBack"
     item: "BARRIER"
     slot: 53
     
 withdraw-menu:
   title: "&eWithdraw"
+  # These lines will be added to the end of each shop item
+  # %name% for item name, %amount% for total item amount
+  name-format: "%name% &ax%amount%"
+  # These lines will be added to the end of each shop item
+  withdraw-format:
+    - "&cLeft-click &7to withdraw &6%left-click-amount%"
+    - "&cRight-click &7to withdraw &6%right-click-amount%"
+    - "&cShift + Left-click &7to withdraw &61 stack"
+  left-click-amount: 1
+  right-click-amount: 8
   back-item:
     name: "&cBack"
     item: "BARRIER"
@@ -71,17 +94,27 @@ shop-menu:
     - "&7Cost: &b$%cost%"
     - "&cLeft-click &7to buy &6%left-click-amount%"
     - "&cRight-click &7to buy &6%right-click-amount%"
-    - "&cMiddle-click &7to buy &6%middle-click-amount%"
+    - "&cShift + Left-click &7to buy &61 stack"
   left-click-amount: 1
   right-click-amount: 8
-  middle-click-amount: 64
+  back-item:
+    name: "&cBack"
+    item: "BARRIER"
+    # The slot must not be 45 or 53
+    slot: 49
   shops:
     # each section should have same name as one of the groups defined above
     pd:
+      # The key doesn't have to be a number
+      # Pageination is supported if amount of items goes above 45
       1: 
         item: COOKED_BEEF
         cost: 64
       2:
         item: IRON_SWORD
         cost: 143
+        
+messages:
+  no-group: "&cYou are not in a faction!"
+  items-deposited: "&7You deposited &a%amount% &7items."
     

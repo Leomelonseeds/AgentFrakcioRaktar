@@ -1,9 +1,15 @@
 package com.leomelonseeds.afr.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,13 +22,107 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import com.leomelonseeds.afr.AgentFrakcioRaktar;
+import com.leomelonseeds.afr.inv.StoredItem;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ConfigUtils {
+    
+    // Turn a list of StoredItem into a string, and store it in the file
+    public static void itemsToString(List<StoredItem> list, Location location, String group) {
+        String output = "";
+        try {
+            ByteArrayOutputStream str = new ByteArrayOutputStream();
+            BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
+            
+            data.writeInt(list.size());
+            for (StoredItem i : list) {
+                data.writeObject(i);
+            }
+            
+            output = Base64.getEncoder().encodeToString(str.toByteArray());
+        } catch (final IOException e) {
+            Bukkit.getLogger().log(Level.WARNING, "Failed to save a StoredItem string to the config");
+        }
+        
+        FileConfiguration storage = getData(locationToString(location));
+        storage.set(group, output);
+    }
+    
+    // Fetch string from input and turn it into list of StoredItem
+    public static List<StoredItem> stringToItems(Location location, String group) {
+        String input = getData(locationToString(location)).getString(group);
+        List<StoredItem> output = new ArrayList<>();
+        
+        if (input.isEmpty()) {
+            return output;
+        }
+
+        try {
+            ByteArrayInputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(input));
+            BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
+            
+            int size = data.readInt();
+            for (int i = 0; i < size; i++) {
+                StoredItem invItem = (StoredItem) data.readObject();
+                output.add(invItem);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            Bukkit.getLogger().log(Level.WARNING, "Failed to read a StoredItem string from the config");
+            e.printStackTrace();
+        }
+        
+        return output;
+    }
+    
+    // Update a string when new items are deposited
+    public static void updateString(List<ItemStack> input, Location location, String group) {
+        Bukkit.getScheduler().runTaskAsynchronously(AgentFrakcioRaktar.getPlugin(), () -> {
+            List<StoredItem> currentItems = stringToItems(location, group);
+            List<ItemStack> iterate = new ArrayList<>(input);
+            // Add duplicate items to list
+            for (StoredItem s : currentItems) {
+                ItemStack item = s.getItem();
+                for (ItemStack t : iterate) {
+                    if (t.isSimilar(item)) {
+                        s.addAmount(t.getAmount());
+                        input.remove(t);
+                    }
+                }
+            }
+            
+            // The rest are appended to the StoredItems list
+            // To avoid CME, make set of items that have already been added
+            Set<ItemStack> added = new HashSet<>();
+            for (ItemStack item : input) {
+                if (added.contains(item)) {
+                    continue;
+                }
+                StoredItem si = new StoredItem(item, 0);
+                for (ItemStack jtem : input) {
+                    if (jtem.isSimilar(item)) {
+                        si.addAmount(jtem.getAmount());
+                    }
+                }
+                currentItems.add(si);
+            }
+            
+            // Put back in storage
+            itemsToString(currentItems, location, group);
+        });
+    }
+    
+    public static void sendMessage(Player player, String message) {
+        FileConfiguration config = AgentFrakcioRaktar.getPlugin().getConfig();
+        String path = "messages." + message;
+        String result = config.getString(path);
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', result));
+    }
     
     // Get group of player, or null if player not in any group
     public static String getGroup(Player player) {
@@ -57,7 +157,7 @@ public class ConfigUtils {
         String x = Integer.toString(location.getBlockX());
         String y = Integer.toString(location.getBlockY());
         String z = Integer.toString(location.getBlockZ());
-        String world = location.getWorld().toString();
+        String world = location.getWorld().getName();
         
         return String.join(",", world, x, y, z) + ".yml";
     }
@@ -79,17 +179,15 @@ public class ConfigUtils {
         
         String name = config.getString(path + ".name");
         String material = config.getString(path + ".item");
-        
         List<String> lore = config.getStringList(path + ".lore");
         
         // Add cost formats if cost exists
-        if (path.contains("shop")) {
+        if (config.contains(path + ".cost")) {
             List<String> format = config.getStringList("shop-menu.cost-format");
             int cost = config.getInt(path + ".cost");
-            String[] amounts = {"left-click-amount", "right-click-amount", "middle-click-amount"};
             for (String s : format) {
                 s = s.replaceAll("%cost%", cost + "");
-                for (String a : amounts) {
+                for (String a : new String[] {"left-click-amount", "right-click-amount"}) {
                     s = s.replaceAll("%" + a + "%", config.getInt("shop-menu." + a) + "");
                 }
             }
