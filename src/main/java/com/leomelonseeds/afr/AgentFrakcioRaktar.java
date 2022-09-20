@@ -9,7 +9,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.leomelonseeds.afr.command.AFRCommand;
 import com.leomelonseeds.afr.inv.InventoryManager;
 import com.leomelonseeds.afr.listener.InventoryListener;
 import com.leomelonseeds.afr.util.ConfigUtils;
@@ -36,7 +35,6 @@ public class AgentFrakcioRaktar extends JavaPlugin {
         
         // Load commands and events
         log("Loading commands and events...");
-        getCommand("afr").setExecutor(new AFRCommand());
         Bukkit.getPluginManager().registerEvents(new InventoryListener(), this);
         log("Commands and events loaded.");
         
