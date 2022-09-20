@@ -6,12 +6,3 @@ author: M310N
 description: A factions storage plugin
 depend:
   - Vault
-permissions:
-  afr.admin:
-    default: op
-commands:
-  afr:
-    description: Main afr command
-    aliases:
-    - agentfrakcioraktar
-    permission: afr.admin
