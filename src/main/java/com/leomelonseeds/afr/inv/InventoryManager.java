@@ -32,6 +32,17 @@ private Map<Player, AFRInventory> inventoryCache;
         }
     }
     
+    // For server stops
+    public void depositAll() {
+        for (AFRInventory inv : inventoryCache.values()) {
+            if (inv instanceof DepositMenu) {
+                DepositMenu menu = (DepositMenu) inv;
+                menu.depositItems(false);
+                menu.getInventory().close();
+            }
+        }
+    }
+    
     public void removePlayer(Player player) {
         inventoryCache.remove(player);
     }

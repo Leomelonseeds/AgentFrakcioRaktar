@@ -94,48 +94,52 @@ public class ConfigUtils {
         return output;
     }
     
+    public static void updateStringAsync(List<ItemStack> input, Location location, String group) {
+        Bukkit.getScheduler().runTaskAsynchronously(AgentFrakcioRaktar.getPlugin(), () -> {
+            updateString(input, location, group);
+        });
+    }
+    
     // Update a string when new items are deposited
     public static void updateString(List<ItemStack> input, Location location, String group) {
-        Bukkit.getScheduler().runTaskAsynchronously(AgentFrakcioRaktar.getPlugin(), () -> {
-            List<StoredItem> currentItems = stringToItems(location, group);
-            List<ItemStack> iterate = new ArrayList<>(input);
-            // Add duplicate items to list
-            for (StoredItem s : currentItems) {
-                ItemStack item = s.getItem();
-                for (ItemStack t : iterate) {
-                    if (t.isSimilar(item)) {
-                        s.addAmount(t.getAmount());
-                        input.remove(t);
-                    }
+        List<StoredItem> currentItems = stringToItems(location, group);
+        List<ItemStack> iterate = new ArrayList<>(input);
+        // Add duplicate items to list
+        for (StoredItem s : currentItems) {
+            ItemStack item = s.getItem();
+            for (ItemStack t : iterate) {
+                if (t.isSimilar(item)) {
+                    s.addAmount(t.getAmount());
+                    input.remove(t);
                 }
             }
-            
-            // The rest are appended to the StoredItems list
-            // To avoid CME, make set of items that have already been added
-            Set<ItemStack> added = new HashSet<>();
-            for (ItemStack item : input) {
-                boolean skip = false;
-                for (ItemStack i : added) {
-                    if (i.isSimilar(item)) {
-                        skip = true;
-                    }
+        }
+        
+        // The rest are appended to the StoredItems list
+        // To avoid CME, make set of items that have already been added
+        Set<ItemStack> added = new HashSet<>();
+        for (ItemStack item : input) {
+            boolean skip = false;
+            for (ItemStack i : added) {
+                if (i.isSimilar(item)) {
+                    skip = true;
                 }
-                if (skip) {
-                    continue;
-                }
-                added.add(item);
-                StoredItem si = new StoredItem(new ItemStack(item), 0);
-                for (ItemStack jtem : input) {
-                    if (jtem.isSimilar(item)) {
-                        si.addAmount(jtem.getAmount());
-                    }
-                }
-                currentItems.add(si);
             }
-            
-            // Put back in storage
-            itemsToString(currentItems, location, group);
-        });
+            if (skip) {
+                continue;
+            }
+            added.add(item);
+            StoredItem si = new StoredItem(new ItemStack(item), 0);
+            for (ItemStack jtem : input) {
+                if (jtem.isSimilar(item)) {
+                    si.addAmount(jtem.getAmount());
+                }
+            }
+            currentItems.add(si);
+        }
+        
+        // Put back in storage
+        itemsToString(currentItems, location, group);
     }
     
     public static void sendMessage(Player player, String message) {

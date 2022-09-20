@@ -51,6 +51,10 @@ public class AgentFrakcioRaktar extends JavaPlugin {
     
     @Override
     public void onDisable() {
+        log("Closing and auto-depositing all inventories...");
+        invManager.depositAll();
+        log("All inventories closed.");
+        
         log("Disabling AgentFrakcioRaktar...");
     }
     

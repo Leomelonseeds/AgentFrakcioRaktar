@@ -28,6 +28,11 @@ public class AFRMenu implements AFRInventory {
 
     @Override
     public void updateInventory() {
+        
+        for (int i = 0; i < inv.getSize(); i++) {
+            inv.setItem(i, ConfigUtils.createItem("fill-item"));
+        }
+        
         for (String i : new String[] {"deposit", "withdraw", "shop"}) {
             String path = "main-menu." + i;
             ItemStack item = ConfigUtils.createItem(path);

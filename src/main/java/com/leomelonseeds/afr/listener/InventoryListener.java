@@ -34,6 +34,13 @@ public class InventoryListener implements Listener {
         }
         
         Inventory inv = event.getClickedInventory();
+        
+        if (inv.equals(event.getView().getBottomInventory()) && event.getClick().isShiftClick() 
+                && !(manager.getInventory(player) instanceof DepositMenu)) {
+            event.setCancelled(true);
+            return;
+        }
+        
         if (inv == null || !inv.equals(event.getView().getTopInventory())){
             return; 
         }
@@ -56,7 +63,7 @@ public class InventoryListener implements Listener {
         // Deposit items if DepositMenu was closed
         if (manager.getInventory(player) instanceof DepositMenu) {
             DepositMenu inv = (DepositMenu) manager.getInventory(player);
-            inv.depositItems();
+            inv.depositItems(true);
         }
         
         // Unregister custom inventory
@@ -68,7 +75,13 @@ public class InventoryListener implements Listener {
     // Check opening of custom inventories
     @EventHandler
     public void playerRightClick(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        
+        if (player.isSneaking()) {
             return;
         }
         
@@ -96,7 +109,6 @@ public class InventoryListener implements Listener {
 
             if (check.equals(left) || check.equals(right)) {
                 event.setCancelled(true);
-                Player player = event.getPlayer();
                 String group = ConfigUtils.getGroup(player);
 
                 if (group == null) {
