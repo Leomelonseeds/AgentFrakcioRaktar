@@ -35,13 +35,17 @@ public class InventoryListener implements Listener {
         
         Inventory inv = event.getClickedInventory();
         
+        if (inv == null) {
+            return;
+        }
+        
         if (inv.equals(event.getView().getBottomInventory()) && event.getClick().isShiftClick() 
                 && !(manager.getInventory(player) instanceof DepositMenu)) {
             event.setCancelled(true);
             return;
         }
         
-        if (inv == null || !inv.equals(event.getView().getTopInventory())){
+        if (!inv.equals(event.getView().getTopInventory())){
             return; 
         }
         
